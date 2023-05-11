@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  flask:
+    build: ./
+    ports:
+      - '8585:8585'
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_APP=run
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: redis
+    restart: always
+
+  celery:
+    build:
+        context: .
+    environment:
+      - FLASK_APP= run
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - REDIS_HOST=redis
+
+    volumes:
+      - .:/app
+    command: celery -A run.celery worker --loglevel=info
+    # command: tail -f /dev/null
+    depends_on:
+      - redis

@@ -1,0 +1,5 @@
+requests
+celery
+redis
+flask-appbuilder
+psycopg2-binary
